@@ -1,6 +1,5 @@
 <?php
 require('../../config.php');
-require('../../ctp-mods.php');
 
 $usrLanguage = $conf['language'];
 require("../../locale/locale-$usrLanguage.php");
@@ -142,7 +141,7 @@ EOL;
     // Unblocking function
 
     if($_GET['unblock'] == "unblocked") {
-      unblock($url,$GLOBALS['unblockTimeSec']);
+      unblock();
     } else if($_GET['unblock'] == "true") {
       sleep(3);
       echo <<<EOL
@@ -150,5 +149,38 @@ EOL;
       setTimeout(function() {document.getElementById('interstitialUnblock').submit();}, 1000);
       </script>
 EOL;
+    }
+    function unblock() {
+
+      // Build command to add to P-H whitelist
+      // $addWhitelistComm = "pihole -w " .$GLOBALS['url'];
+//      $addWhitelistComm = "sudo pihole -w ".$GLOBALS['url']." > /dev/null &";
+//      $addWhitelistComm = "/usr/local/bin/pihole -w ".$GLOBALS['url']." > /var/log/ctp-temp-unblock.log";
+//      $log = "/usr/local/bin/pihole -w ".$GLOBALS['url']."";
+
+      // Build command to schedule removal from P-H whitelist. Sleep x = sleep for x number of seconds. 300 = 5 minutes.
+//      $rmWhitelistComm = "( sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$GLOBALS['url']." & ) > /dev/null &";
+//      $rmlog = "( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$GLOBALS['url']." ) &";
+
+      // Execute P-H whitelist add command
+//      exec($addWhitelistComm);
+//      exec($log);
+//      exec($rmlog);
+      $domain =	$GLOBALS['url'];
+      if ($domain = '') {
+	  $domain = getHost();
+       }
+//      $domain = $_GET['unblock'];
+      $toUnblock = str_replace('&period;', '.', strval($domain));
+      exec(" /usr/bin/sudo /usr/local/bin/pihole -w ".$toUnblock."; /usr/bin/sudo pihole restartdns reload-lists");
+      shell_exec(" /usr/bin/sudo /usr/local/bin/pihole -w ".$toUnblock."; /usr/bin/sudo pihole restartdns reload-lists");
+//      shell_exec($log);
+//      shell_exec($rmlog);
+      // Execute command that schedules removal of domain from P-H whitelist
+//      exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d "rawurldecode(.$GLOBALS['url'].)" ) &");
+      exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/bin/sudo /usr/local/bin/pihole -w -d ".$toUnblock."; /usr/bin/sudo pihole restartdns reload-lists ) &");
+      shell_exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/bin/sudo /usr/local/bin/pihole -w -d ".$toUnblock."; /usr/bin/sudo pihole restartdns reload-lists ) &");
+ //     shell_exec($rmWhitelistComm);
+      // All done!
     }
 ?>

@@ -1,5 +1,6 @@
 <?php
 require('config.php');
+require('ctp-mods.php');
 
 $url =  "{$_SERVER['HTTP_HOST']}";
 $bpLocal = $conf['blockpage_url'];

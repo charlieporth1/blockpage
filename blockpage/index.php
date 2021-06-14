@@ -1,5 +1,6 @@
 <?php
 require('../config.php');
+require('../ctp-mods.php');
 
 $usrLanguage = $conf['language'];
 require("../locale/locale-$usrLanguage.php");
@@ -17,8 +18,12 @@ if(isset($_GET['url'])) {
     }
 
   $url_provided = true;
-
+//    $url = $_SERVER['SERVER_NAME'];
     if($url == $server_ip) {
+        $url = null;
+        $url_provided = false;
+    }
+    if($url == '35.232.120.211') {
         $url = null;
         $url_provided = false;
     }
@@ -34,7 +39,7 @@ if(isset($_GET['url'])) {
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
+    <?php  dns_prefetch();  ?>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
@@ -107,7 +112,7 @@ EOL;
             <?php
               function get_data($url) {
                 $ch = curl_init();
-                $timeout = 5;
+                $timeout = 15;
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
@@ -117,7 +122,7 @@ EOL;
               }
 
               $latestVersion = get_data("https://raw.githubusercontent.com/PiPass/bin/master/currentversion");
-              
+
               if($latestVersion >= $conf['pipass_version']) {
                 echo <<<EOL
                 <br />

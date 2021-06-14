@@ -8,7 +8,8 @@ NOTE: All PiPass files are dependent upon this one configuration file. Your
 changes will be widespread!
 */
 
-$ini_path = "{$_SERVER['HOME']}/.config/PiPass/PiPass.ini";
+//$ini_path = "{$_SERVER['HOME']}/.config/PiPass/PiPass.ini";
+$ini_path = "/opt/.config/PiPass/PiPass.ini";
 $ini = [];
 
 // If the ini file exists, use it. If not, create an empty $ini array so
@@ -40,7 +41,7 @@ $conf['blockpage_url'] = get_config('blockpage_url', "blockpage/index.php");
 // connection is "not secure." It's highly recommended that you change this.
 // Example: "https://example.com/blockpage/"
 
-$conf['unblock_url'] = get_config('unblock-url', "unblock");
+$conf['unblock_url'] = get_config('unblock_url', "unblock/index.php");
 // In most cases this does not have to be changed. Only change it if your
 // unblock page resides in a sub-path which is not "unblock"
 
@@ -48,7 +49,7 @@ $conf['safeurl'] = get_config('safeurl', "about:blank");
 // Enter a URL of your choice to go to when a user clicks "back to safety"
 // This should not be a directory.
 
-$conf['adminemail'] = get_config('adminemail', "");
+$conf['adminemail'] = get_config('adminemail', "unblock@ctptech.dev");
 // Your email. Used when a user requests a permanent unblock.
 
 $conf['timezone'] = date_default_timezone_set(get_config('timezone', "America/New_York"));
