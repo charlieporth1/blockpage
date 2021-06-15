@@ -1,5 +1,4 @@
 <?php
-require('./config.php');
 function dns_prefetch() {
 echo  <<<EOL
 <meta http-equiv="x-dns-prefetch-control" content="on">
