@@ -87,10 +87,10 @@ if(isset($_GET['url'])) {
             <hr>
             <button onclick='window.location="<?php echo $safeurl; ?>";' type="button" class="btn btn-success btn-lg btn-block"><?php echo $safeButton ?></button>
             <button onclick='window.location="" +
-                    "mailto:<?php echo $adminemail; ?>?subject=Website Unblock Request&body=You can use this email to request the administrator to unblock a website. The first two fields have already been filled out for you.\n"+
-                    "%0D%0A%0D%0A"+
-                    "Requesting IP address: <?php echo $_SERVER['REMOTE_ADDR']; ?>%0D%0A"+
-                    "Requested website: <?php echo $url; ?>%0D%0A"+
+         	    "mailto:<?php echo $adminemail; ?>?subject=Website Unblock Request&body=You can use this email to request the administrator to unblock a website. The first two fields have already been filled out for you.\n" +
+                    "%0D%0A%0D%0A" +
+                    "Requesting IP address: <?php echo $_SERVER['REMOTE_ADDR']; ?>%0D%0A" +
+                    "Requested website: <?php echo $url; ?>%0D%0A" +
                     "Reason for unblock: ";' type="button" class="btn btn-primary btn-lg btn-block"><?php echo $requestUnblockButton; ?></button>
             <form action="<?php echo $conf['unblock_url']; ?>">
               <input type="hidden" name="url" value="<?php echo $url; ?>">

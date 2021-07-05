@@ -40,6 +40,7 @@ if(isset($_GET['url'])) {
 <!doctype html>
 <html lang="en">
   <head>
+  <?php  dns_prefetch();  ?>
   <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
 
     <!-- Required meta tags -->
@@ -93,7 +94,7 @@ EOL;
         
         if(isset($_GET['unblock']) || !($url_provided)) {
           echo <<<EOL
-            <button type="submit" style="display:none;" class="btn btn-warning btn-lg btn-block">$unblockTemporaryButton</button>
+            <button type="submit" class="btn btn-warning btn-lg btn-block">$unblockTemporaryButton</button>
             </form>
           </div>
 EOL;
@@ -140,9 +141,11 @@ EOL;
 
 <?php
     // Unblocking function
+    $url = $GLOBALS['url'];
+    $time = $GLOBALS['unblockTimeSec'];
 
     if($_GET['unblock'] == "unblocked") {
-      unblock($url,$GLOBALS['unblockTimeSec']);
+      unblock($url, $time);
     } else if($_GET['unblock'] == "true") {
       sleep(3);
       echo <<<EOL
