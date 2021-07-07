@@ -17,29 +17,35 @@ EOL;
 //      $domain = $_GET['unblock'];
       $toUnblock = str_replace('&period;', '.', strval($domain));
 
-      $quote_str = "";
+      $quote_str = '"';
+      $root_home = "/home/charlieporth1_gmail_com";
 //      $parallel_ssh = "/usr/bin/parallel -j1 --sshloginfile /home/charlieporth1_gmail_com/.parallel/sshloginfile /bin/bash -c '{}' ::: ' ";
-      $parallel_ssh = "";
- 
-     $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
+      $parallel_ssh = "/usr/bin/parallel-ssh -h " . $root_home . "/.ssh/parallel_hosts ";
+//      $parallel_ssh = "";
+
+      $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
       $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists";
 
 
       $whitelistStr = $pihole_cmd_str . " -w ".$toUnblock."; " . $pihole_refresh_cmd_str;
-      $rmWhitelistStr = "( /usr/bin/sleep ".$time."; /usr/bin/sudo /usr/local/bin/pihole -w -d ".$toUnblock."; " . $pihole_refresh_cmd_str . " )&";
-
-      exec($quote_str . $whitelistStr . $quote_str);
-      exec($quote_str . $parallel_ssh . $whitelistStr. $quote_str . $quote_str);
-
-      shell_exec($quote_str . $whitelistStr . $quote_str);
-      shell_exec($quote_str . $parallel_ssh . $whitelistStr . $quote_str . $quote_str);
+      $rmWhitelistStr = "( /usr/bin/sleep ".$time."; " . $pihole_cmd_str . " -w -d ".$toUnblock."; " . $pihole_refresh_cmd_str . " )&";
 
 
-      exec($quote_str . $rmWhitelistStr . $quote_str);
-      exec($quote_str . $parallel_ssh . $rmWhitelistStr . $quote_str . $quote_str);
+      $white_cmd_str = $quote_str . $whitelistStr . $quote_str;
+      $rm_white_cmd_str = $quote_str . $rmWhitelistStr . $quote_str;
+      $parallel_cmd_str =$parallel_ssh;
+      exec($white_cmd_str);
+      exec($parallel_cmd_str . $white_cmd_str);
 
-      shell_exec($quote_str . $rmWhitelistStr . $quote_str);
-      shell_exec($quote_str . $parallel_ssh . $rmWhitelistStr . $quote_str . $quote_str);
+      shell_exec($white_cmd_str);
+      shell_exec($parallel_cmd_str . $white_cmd_str);
+
+
+      exec($rm_white_cmd_str);
+      exec($parallel_cmd_str . $rm_white_cmd_str);
+
+      shell_exec($rm_white_cmd_str);
+      shell_exec($parallel_cmd_str . $rm_white_cmd_str);
       // All done!
     }
 
