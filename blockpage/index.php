@@ -5,32 +5,7 @@ require('../ctp-mods.php');
 $usrLanguage = $conf['language'];
 require("../locale/locale-$usrLanguage.php");
 
-if(isset($_GET['url'])) {
-    if(strpos($_GET['url'], ':') !== false) {
-        // Strip port out of DNS name since PiHole does not deal with ports
-        $url = substr($_GET['url'], 0, strpos($_GET['url'], ":"));
-
-        // After stripping out port, then we sanitize/escape the input before doing anything with it
-        $url = htmlentities($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    } else {
-        // There is no port number so we go straight to sanitizing the user input
-        $url = htmlentities($_GET['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    }
-
-  $url_provided = true;
-//    $url = $_SERVER['SERVER_NAME'];
-    if($url == $server_ip) {
-        $url = null;
-        $url_provided = false;
-    }
-    if($url == '35.232.120.211') {
-        $url = null;
-        $url_provided = false;
-    }
-} else {
-  $url_provided = false;
-  $url = null;
-}
+getAndSetURL();
 ?>
 
 <!doctype html>

@@ -62,6 +62,6 @@ $conf['unblock_seconds'] = get_config('unblock_seconds', 7200);
 // How many seconds to unblock a website for when a temporary unblock is
 // executed by a user.
 
-$conf['pipass_version'] = "1.4";
+$conf['pipass_version'] = get_config('pipass_version', '1.4');
 // You probably should not mess with this variable.
 ?>

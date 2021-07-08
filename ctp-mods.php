@@ -20,7 +20,7 @@ EOL;
       $quote_str = '"';
       $root_home = "/home/charlieporth1_gmail_com";
 //      $parallel_ssh = "/usr/bin/parallel -j1 --sshloginfile /home/charlieporth1_gmail_com/.parallel/sshloginfile /bin/bash -c '{}' ::: ' ";
-      $parallel_ssh = "/usr/bin/parallel-ssh -h " . $root_home . "/.ssh/parallel_hosts ";
+      $parallel_ssh = "/usr/bin/parallel-ssh -h " . $root_home . "/.ssh/parallel_hosts " . $quote_str;
 //      $parallel_ssh = "";
 
       $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
@@ -31,9 +31,9 @@ EOL;
       $rmWhitelistStr = "( /usr/bin/sleep ".$time."; " . $pihole_cmd_str . " -w -d ".$toUnblock."; " . $pihole_refresh_cmd_str . " )&";
 
 
-      $white_cmd_str = $quote_str . $whitelistStr . $quote_str;
+      $white_cmd_str = $whitelistStr;
       $rm_white_cmd_str = $quote_str . $rmWhitelistStr . $quote_str;
-      $parallel_cmd_str =$parallel_ssh;
+      $parallel_cmd_str = $parallel_ssh;
       exec($white_cmd_str);
       exec($parallel_cmd_str . $white_cmd_str);
 
@@ -67,5 +67,37 @@ EOL;
         return  $_SERVER["HTTP_HOST"];
  }
  return '';
+}
+ function geBlockFullOrgURL() {
+
+ }
+function getAndSetURL() {
+ global $url, $url_provided, $server_ip;
+ if(isset($_GET['url'])) {
+    if(strpos($_GET['url'], ':') !== false) {
+        // Strip port out of DNS name since PiHole does not deal with ports
+        $url = substr($_GET['url'], 0, strpos($_GET['url'], ":"));
+
+        // After stripping out port, then we sanitize/escape the input before doing anything with it
+        $url = htmlentities($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    } else {
+        // There is no port number so we go straight to sanitizing the user input
+        $url = htmlentities($_GET['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+  $url_provided = true;
+//    $url = $_SERVER['SERVER_NAME'];
+    if($url == $server_ip) {
+        $url = null;
+        $url_provided = false;
+    } else if($url == '35.232.120.211') {
+        $url = null;
+        $url_provided = false;
+    }
+
+} else {
+  $url_provided = false;
+  $url = null;
+}
 }
 ?>

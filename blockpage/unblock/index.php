@@ -6,35 +6,7 @@ $usrLanguage = $conf['language'];
 require("../../locale/locale-$usrLanguage.php");
 
 $GLOBALS['unblockTimeSec'] = $conf['unblock_seconds'];
-
-if(isset($_GET['url'])) {
-    if(strpos($_GET['url'], ':') !== false) {
-        // Strip port out of DNS name since PiHole does not deal with ports
-        $url = substr($_GET['url'], 0, strpos($_GET['url'], ":"));
-
-        // After stripping out port, then we sanitize/escape the input before doing anything with it
-        $url = htmlentities($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-        // Set global URL variable
-        $GLOBALS['url'] = $url;
-    } else {
-        // There is no port number so we go straight to sanitizing the user input
-        $url = htmlentities($_GET['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-        // Set global URL variable
-        $GLOBALS['url'] = $url;
-    }
-
-    $url_provided = true;
-
-    if($url == $server_ip) {
-        $url = null;
-        $url_provided = false;
-    }
-} else {
-    $url_provided = false;
-    $url = null;
-}
+getAndSetURL();
 ?>
 
 <!doctype html>
