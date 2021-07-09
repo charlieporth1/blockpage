@@ -49,7 +49,7 @@ $conf['safeurl'] = get_config('safeurl', "about:blank");
 // Enter a URL of your choice to go to when a user clicks "back to safety"
 // This should not be a directory.
 
-$conf['adminemail'] = get_config('adminemail', "unblock@ctptech.dev");
+$conf['adminemail'] = get_config('adminemail', "");
 // Your email. Used when a user requests a permanent unblock.
 
 $conf['timezone'] = date_default_timezone_set(get_config('timezone', "America/New_York"));
@@ -64,4 +64,9 @@ $conf['unblock_seconds'] = get_config('unblock_seconds', 7200);
 
 $conf['pipass_version'] = get_config('pipass_version', '1.4');
 // You probably should not mess with this variable.
+
+$conf['is_parallal_pihole'] = get_config('is_parallal_pihole', false);
+
+$conf['parallel_hosts_full_file_path'] = get_config('parallel_hosts_full_file_path', '');
+
 ?>

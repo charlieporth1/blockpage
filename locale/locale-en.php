@@ -1,6 +1,6 @@
 <?php
 $hostname = gethostname();
-$server_ip = $_SERVER['SERVER_ADDR']; 
+$server_ip = $_SERVER['SERVER_ADDR'];
 $date = $conf['date'];
 $safeurl = $conf['safeurl'];
 $adminemail = $conf['adminemail'];

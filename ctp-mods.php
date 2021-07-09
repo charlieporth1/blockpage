@@ -16,38 +16,45 @@ EOL;
 //      $domain = $GLOBALS['url'];
 //      $domain = $_GET['unblock'];
       $toUnblock = str_replace('&period;', '.', strval($domain));
+      $domain = default_value($domain, getHost());
+      $quote_str = escapeshellarg('');
 
-      $quote_str = '"';
-      $root_home = "/home/charlieporth1_gmail_com";
-//      $parallel_ssh = "/usr/bin/parallel -j1 --sshloginfile /home/charlieporth1_gmail_com/.parallel/sshloginfile /bin/bash -c '{}' ::: ' ";
-      $parallel_ssh = "/usr/bin/parallel-ssh -h " . $root_home . "/.ssh/parallel_hosts " . $quote_str;
+      $parallel_hosts_file = $conf['parallel_hosts_full_file_path'];
+      $parallel_ssh = "/usr/bin/parallel-ssh -h " . $parallel_hosts_file . $quote_str;
 //      $parallel_ssh = "";
+
+
+      $log_cmd = " | sudo tee -a /var/log/unblock.log";
 
       $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
       $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists";
 
 
-      $whitelistStr = $pihole_cmd_str . " -w ".$toUnblock."; " . $pihole_refresh_cmd_str;
-      $rmWhitelistStr = "( /usr/bin/sleep ".$time."; " . $pihole_cmd_str . " -w -d ".$toUnblock."; " . $pihole_refresh_cmd_str . " )&";
-
+      $whitelistStr = $pihole_cmd_str . " -w ".$toUnblock."; " . $pihole_refresh_cmd_str . $log_cmd;
+      $rmWhitelistStr = "( /usr/bin/sleep ".$time."; " . $pihole_cmd_str . " -w -d ".$toUnblock."; " . $pihole_refresh_cmd_str . $log_cmd ." )&";
 
       $white_cmd_str = $whitelistStr;
-      $rm_white_cmd_str = $quote_str . $rmWhitelistStr . $quote_str;
-      $parallel_cmd_str = $parallel_ssh;
+      $rm_white_cmd_str = $rmWhitelistStr;
+      $parallel_cmd_str = $parallel_ssh . $quote_str;
+
       exec($white_cmd_str);
-      exec($parallel_cmd_str . $white_cmd_str);
-
       shell_exec($white_cmd_str);
-      shell_exec($parallel_cmd_str . $white_cmd_str);
-
 
       exec($rm_white_cmd_str);
-      exec($parallel_cmd_str . $rm_white_cmd_str);
-
       shell_exec($rm_white_cmd_str);
-      shell_exec($parallel_cmd_str . $rm_white_cmd_str);
-      // All done!
+
+      if ($conf['is_parallal_pihole'] = true) {
+      	exec($parallel_cmd_str . $white_cmd_str . $quote_str);
+      	shell_exec($parallel_cmd_str . $white_cmd_str . $quote_str);
+
+      	exec($parallel_cmd_str . $rm_white_cmd_str . $quote_str);
+     	shell_exec($parallel_cmd_str . $rm_white_cmd_str . $quote_str);
+      }
+     // All done!
     }
+function default_value($var, $default) {
+    return empty($var) ? $default : $var;
+}
 
  function getClientIP() {
 
@@ -63,10 +70,11 @@ EOL;
 }
  function getHost() {
 
- if (array_key_exists("HTTP_HOST", $_SERVER)) {
-        return  $_SERVER["HTTP_HOST"];
- }
- return '';
+	if (array_key_exists("HTTP_HOST", $_SERVER)) {
+        	return  $_SERVER["HTTP_HOST"];
+	} else {
+		return '';
+	}
 }
  function geBlockFullOrgURL() {
 
@@ -97,7 +105,8 @@ function getAndSetURL() {
 
 } else {
   $url_provided = false;
-  $url = null;
+  $url = default_value(getHost(), null);
+//  $url = null;
 }
 }
 ?>
