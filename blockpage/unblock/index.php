@@ -113,11 +113,11 @@ EOL;
 
 <?php
     // Unblocking function
-    $url = $GLOBALS['url'];
+    $urlStr = $GLOBALS['url'];
     $time = $GLOBALS['unblockTimeSec'];
 
     if($_GET['unblock'] == "unblocked") {
-      unblock($url, $time);
+      unblock($urlStr, $time, $conf);
     } else if($_GET['unblock'] == "true") {
       sleep(3);
       echo <<<EOL

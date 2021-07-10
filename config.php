@@ -9,7 +9,7 @@ changes will be widespread!
 */
 
 //$ini_path = "{$_SERVER['HOME']}/.config/PiPass/PiPass.ini";
-$ini_path = "/opt/.config/PiPass/PiPass.ini";
+$ini_path = "/opt/config/PiPass/PiPass.ini";
 $ini = [];
 
 // If the ini file exists, use it. If not, create an empty $ini array so
@@ -65,7 +65,7 @@ $conf['unblock_seconds'] = get_config('unblock_seconds', 7200);
 $conf['pipass_version'] = get_config('pipass_version', '1.4');
 // You probably should not mess with this variable.
 
-$conf['is_parallal_pihole'] = get_config('is_parallal_pihole', false);
+$conf['is_parallel_pihole'] = get_config('is_parallel_pihole', false);
 
 $conf['parallel_hosts_full_file_path'] = get_config('parallel_hosts_full_file_path', '');
 
