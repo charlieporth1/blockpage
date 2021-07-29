@@ -67,6 +67,5 @@ $conf['pipass_version'] = get_config('pipass_version', '1.4');
 
 $conf['is_parallel_pihole'] = get_config('is_parallel_pihole', false);
 
-$conf['parallel_hosts_full_file_path'] = get_config('parallel_hosts_full_file_path', '');
-
+$conf['parallel_hosts_full_file_path'] = get_config('parallel_hosts_full_file_path', '/opt/config/PiPass/parallel_hosts');
 ?>

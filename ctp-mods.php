@@ -2,8 +2,7 @@
 //if (empty($conf)) {
 //    require('config.php');
 //}
-function dns_prefetch()
-{
+function dns_prefetch() {
     echo <<<EOL
 <meta http-equiv="x-dns-prefetch-control" content="on">
 <link rel="dns-prefetch" href="//fonts.googleapis.com" />
@@ -15,52 +14,6 @@ function dns_prefetch()
 <link rel="dns-prefetch" href="//stackpath.bootstrapcdn.com" />
 <link rel="dns-prefetch" href="//ajax.aspnetcdn.com" />
 EOL;
-}
-
-function unblock($domain, $time, $conf)
-{
-//      $domain = $GLOBALS['url'];
-//      $domain = $_GET['unblock'];
-    $domain = default_value($domain, getHost());
-    $toUnblock = str_replace('&period;', '.', strval($domain));
-
-    $quote_str = escapeshellarg('');
-    $parallel_hosts_file = $conf['parallel_hosts_full_file_path'];
-    $parallel_ssh = "/usr/bin/parallel-ssh -h " . $parallel_hosts_file . $quote_str;
-//      $parallel_ssh = "";
-
-
-//    $end_cmd = " | sudo tee -a /var/log/unblock.log";
-    $end_cmd = "";
-    $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
-    $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists";
-
-
-    $whitelistStr = $pihole_cmd_str . " -w " . $toUnblock . "; " . $pihole_refresh_cmd_str . $end_cmd;
-    $rmWhitelistStr = "( /usr/bin/sleep " . $time . "; " . $pihole_cmd_str . " -w -d " . $toUnblock . "; " . $pihole_refresh_cmd_str . $end_cmd . " )& &";
-    $white_cmd_str = $whitelistStr;
-    $rm_white_cmd_str = $rmWhitelistStr;
-    $parallel_cmd_str = $parallel_ssh . $quote_str;
-
-    exec($white_cmd_str);
-    shell_exec($white_cmd_str);
-
-    exec($rm_white_cmd_str);
-    shell_exec($rm_white_cmd_str);
-
-    if ($conf['is_parallel_pihole'] == true) {
-        exec($parallel_cmd_str . $white_cmd_str . $quote_str);
-        shell_exec($parallel_cmd_str . $white_cmd_str . $quote_str);
-
-        exec($parallel_cmd_str . $rm_white_cmd_str . $quote_str);
-        shell_exec($parallel_cmd_str . $rm_white_cmd_str . $quote_str);
-    }
-    // All done!
-}
-
-function default_value($var, $default)
-{
-    return empty($var) ? $default : $var;
 }
 
 function getClientIP()
@@ -75,6 +28,66 @@ function getClientIP()
     }
 
     return '';
+}
+
+function unblockLogger($args) {
+    $log_file = "/var/log/pihole-unblock-block-blockpage.log";
+    $log_cmd = "echo '" . $args . "' | sudo tee -a " . $log_file;
+    exec($log_cmd);
+}
+
+function unblock($domain, $time, $conf) {
+//      $domain = $GLOBALS['url'];
+//      $domain = $_GET['unblock'];
+    $domain = default_value($domain, getHost());
+    $toUnblock = str_replace('&period;', '.', strval($domain));
+
+    $quote_str = ""; //escapeshellarg('');
+
+    $parallel_hosts_file = $conf['parallel_hosts_full_file_path'];
+    $parallel_ssh = "/usr/bin/parallel-ssh --host=" . $parallel_hosts_file . " " .  $quote_str;
+
+    $client_ip = getClientIP();
+    $end_cmd = "";
+    unblockLogger("Ran client_ip, $client_ip, domain $domain, toUnblock $toUnblock, time $time, `date`");
+
+    $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
+    $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists";
+
+    $sleep_cmd_str = " ( /usr/bin/sleep " . $time . "; ";
+    $whitelistStr = $pihole_cmd_str . " -w " . $toUnblock . "; " . $pihole_refresh_cmd_str . $end_cmd;
+    $rmWhitelistStr = $pihole_cmd_str . " -w -d " . $toUnblock . "; " . $pihole_refresh_cmd_str . $end_cmd . " ) &";
+
+    $white_cmd_str = $whitelistStr;
+    $rm_white_cmd_str = $rmWhitelistStr;
+
+    $parallel_cmd_str = $parallel_ssh . $quote_str;
+
+
+
+    exec($white_cmd_str);
+    exec($sleep_cmd_str . $rm_white_cmd_str);
+
+    unblockLogger($white_cmd_str);
+    unblockLogger($sleep_cmd_str . $rm_white_cmd_str);
+
+    if ($conf['is_parallel_pihole'] == true) {
+
+	$white_cmd_str_p = $parallel_cmd_str . $white_cmd_str . $quote_str;
+	$rm_white_cmd_str_p = $sleep_cmd_str . $parallel_cmd_str . $rm_white_cmd_str . $quote_str;
+
+	unblockLogger($white_cmd_str_p);
+	unblockLogger($rm_white_cmd_str_p);
+
+        exec($white_cmd_str_p);
+        exec($rm_white_cmd_str_p);
+    }
+    // All done!
+}
+
+function default_value($var, $default)
+{
+    return empty($var) ? $default : $var;
 }
 
 function getHost()
