@@ -2,7 +2,8 @@
 //if (empty($conf)) {
 //    require('config.php');
 //}
-function dns_prefetch() {
+function dns_prefetch()
+{
     echo <<<EOL
 <meta http-equiv="x-dns-prefetch-control" content="on">
 <link rel="dns-prefetch" href="//fonts.googleapis.com" />
@@ -25,31 +26,35 @@ function getClientIP()
         return $_SERVER["REMOTE_ADDR"];
     } else if (array_key_exists('HTTP_CLIENT_IP', $_SERVER)) {
         return $_SERVER["HTTP_CLIENT_IP"];
+    } else {
+        return '';
     }
-
-    return '';
 }
 
-function unblockLogger($args) {
+function unblockLogger($args)
+{
     $log_file = "/var/log/pihole-unblock-block-blockpage.log";
-    $log_cmd = "echo '" . $args . "' | sudo tee -a " . $log_file;
-    exec($log_cmd);
+    $log_cmd = "echo '[`date`]: " . $args . "' | sudo tee -a " . $log_file;
+    shell_exec($log_cmd);
 }
 
-function unblock($domain, $time, $conf) {
-//      $domain = $GLOBALS['url'];
+function unblock($domain, $time, $conf)
+{
 //      $domain = $_GET['unblock'];
+    $domain = default_value($domain, $GLOBALS['url']);
     $domain = default_value($domain, getHost());
+
+    $time = default_value($time, 7200);
     $toUnblock = str_replace('&period;', '.', strval($domain));
 
     $quote_str = ""; //escapeshellarg('');
 
     $parallel_hosts_file = $conf['parallel_hosts_full_file_path'];
-    $parallel_ssh = "/usr/bin/parallel-ssh --host=" . $parallel_hosts_file . " " .  $quote_str;
+    $parallel_ssh = "/usr/bin/parallel-ssh --host=" . $parallel_hosts_file . " " . $quote_str;
 
     $client_ip = getClientIP();
     $end_cmd = "";
-    unblockLogger("Ran client_ip, $client_ip, domain $domain, toUnblock $toUnblock, time $time, `date`");
+    unblockLogger("Ran client_ip, $client_ip, domain $domain, toUnblock $toUnblock, time $time");
 
     $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
     $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists";
@@ -64,23 +69,22 @@ function unblock($domain, $time, $conf) {
     $parallel_cmd_str = $parallel_ssh . $quote_str;
 
 
-
-    exec($white_cmd_str);
-    exec($sleep_cmd_str . $rm_white_cmd_str);
+    shell_exec($white_cmd_str);
+    shell_exec($sleep_cmd_str . $rm_white_cmd_str);
 
     unblockLogger($white_cmd_str);
     unblockLogger($sleep_cmd_str . $rm_white_cmd_str);
 
     if ($conf['is_parallel_pihole'] == true) {
 
-	$white_cmd_str_p = $parallel_cmd_str . $white_cmd_str . $quote_str;
-	$rm_white_cmd_str_p = $sleep_cmd_str . $parallel_cmd_str . $rm_white_cmd_str . $quote_str;
+        $white_cmd_str_p = $parallel_cmd_str . $white_cmd_str . $quote_str;
+        $rm_white_cmd_str_p = $sleep_cmd_str . $parallel_cmd_str . $rm_white_cmd_str . $quote_str;
 
-	unblockLogger($white_cmd_str_p);
-	unblockLogger($rm_white_cmd_str_p);
+        unblockLogger($white_cmd_str_p);
+        unblockLogger($rm_white_cmd_str_p);
 
-        exec($white_cmd_str_p);
-        exec($rm_white_cmd_str_p);
+        shell_exec($white_cmd_str_p);
+        shell_exec($rm_white_cmd_str_p);
     }
     // All done!
 }
@@ -92,12 +96,23 @@ function default_value($var, $default)
 
 function getHost()
 {
-
     if (array_key_exists("HTTP_HOST", $_SERVER)) {
         return $_SERVER["HTTP_HOST"];
+    } else if (array_key_exists('SERVER_NAME', $_SERVER)) {
+        return $_SERVER["SERVER_NAME"];
     } else {
         return '';
     }
+}
+
+function get_server_ip()
+{
+    echo shell_exec("dig +short myip.opendns.com @resolver1.opendns.com");
+}
+
+function get_internal_server_ip()
+{
+    echo shell_exec("sudo ip route | grep src | awk -F 'src' '{print $NF; exit}' | awk '{print $1}'");
 }
 
 function geBlockFullOrgURL()
@@ -119,21 +134,28 @@ function getAndSetURL()
             // There is no port number so we go straight to sanitizing the user input
             $url = htmlentities($_GET['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
-
         $url_provided = true;
-//    $url = $_SERVER['SERVER_NAME'];
+//
+        $internal_ip = get_internal_server_ip();
         if ($url == $server_ip) {
             $url = null;
             $url_provided = false;
-        } else if ($url == '35.232.120.211') {
+        } else if ($url == '' || empty($url)) {
+            $url = null;
+            $url_provided = false;
+        } else if ($url == get_server_ip()) {
+            $url = null;
+            $url_provided = false;
+        } else if ($url == $internal_ip) {
             $url = null;
             $url_provided = false;
         }
 
-} else {
-  $url_provided = false;
-  $url = default_value(getHost(), null);
+    } else {
+        $url_provided = false;
+        $url = default_value(getHost(), null);
 //  $url = null;
+    }
 }
-}
+
 ?>
