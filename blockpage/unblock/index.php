@@ -1,18 +1,44 @@
 <?php
 require('../../config.php');
-require('../../ctp-mods.php');
 
 $usrLanguage = $conf['language'];
 require("../../locale/locale-$usrLanguage.php");
 
 $GLOBALS['unblockTimeSec'] = $conf['unblock_seconds'];
-getAndSetURL();
+
+if(isset($_GET['url'])) {
+    if(strpos($_GET['url'], ':') !== false) {
+        // Strip port out of DNS name since PiHole does not deal with ports
+        $url = substr($_GET['url'], 0, strpos($_GET['url'], ":"));
+
+        // After stripping out port, then we sanitize/escape the input before doing anything with it
+        $url = htmlentities($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        // Set global URL variable
+        $GLOBALS['url'] = $url;
+    } else {
+        // There is no port number so we go straight to sanitizing the user input
+        $url = htmlentities($_GET['url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        // Set global URL variable
+        $GLOBALS['url'] = $url;
+    }
+
+    $url_provided = true;
+
+    if($url == $server_ip) {
+        $url = null;
+        $url_provided = false;
+    }
+} else {
+    $url_provided = false;
+    $url = null;
+}
 ?>
 
 <!doctype html>
 <html lang="en">
   <head>
-  <?php  dns_prefetch();  ?>
   <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-1.9.0.js"></script>
 
     <!-- Required meta tags -->
@@ -66,7 +92,7 @@ EOL;
         
         if(isset($_GET['unblock']) || !($url_provided)) {
           echo <<<EOL
-            <button type="submit" class="btn btn-warning btn-lg btn-block">$unblockTemporaryButton</button>
+            <button type="submit" style="display:none;" class="btn btn-warning btn-lg btn-block">$unblockTemporaryButton</button>
             </form>
           </div>
 EOL;
@@ -113,11 +139,9 @@ EOL;
 
 <?php
     // Unblocking function
-    $urlStr = $GLOBALS['url'];
-    $time = $GLOBALS['unblockTimeSec'];
 
     if($_GET['unblock'] == "unblocked") {
-      unblock($urlStr, $time, $conf);
+      unblock();
     } else if($_GET['unblock'] == "true") {
       sleep(3);
       echo <<<EOL
@@ -125,5 +149,35 @@ EOL;
       setTimeout(function() {document.getElementById('interstitialUnblock').submit();}, 1000);
       </script>
 EOL;
+    }
+    function unblock() {
+
+      // Build command to add to P-H whitelist
+      // $addWhitelistComm = "pihole -w " .$GLOBALS['url'];
+//      $addWhitelistComm = "sudo pihole -w ".$GLOBALS['url']." > /dev/null &";
+//      $addWhitelistComm = "/usr/local/bin/pihole -w ".$GLOBALS['url']." > /var/log/ctp-temp-unblock.log";
+//      $log = "/usr/local/bin/pihole -w ".$GLOBALS['url']."";
+
+      // Build command to schedule removal from P-H whitelist. Sleep x = sleep for x number of seconds. 300 = 5 minutes.
+//      $rmWhitelistComm = "( sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$GLOBALS['url']." & ) > /dev/null &";
+//      $rmlog = "( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$GLOBALS['url']." ) &";
+
+      // Execute P-H whitelist add command
+//      exec($addWhitelistComm);
+//      exec($log);
+//      exec($rmlog);
+$domain =	$GLOBALS['url'];
+//      $domain = $_GET['unblock'];
+      $toUnblock = str_replace('&period;', '.', strval($domain));
+      exec(" /usr/local/bin/pihole -w ".$toUnblock."");
+      shell_exec(" /usr/local/bin/pihole -w ".$toUnblock."");
+//      shell_exec($log);
+//      shell_exec($rmlog);
+      // Execute command that schedules removal of domain from P-H whitelist
+//      exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d "rawurldecode(.$GLOBALS['url'].)" ) &");
+      exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$toUnblock." & ) &");
+      shell_exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$toUnblock." & ) &");
+ //     shell_exec($rmWhitelistComm);
+      // All done!
     }
 ?>
