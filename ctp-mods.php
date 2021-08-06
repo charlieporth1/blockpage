@@ -2,6 +2,7 @@
 //if (empty($conf)) {
 //    require('config.php');
 //}
+$ctp_mods_imported = true;
 function dns_prefetch()
 {
     echo <<<EOL
@@ -34,7 +35,7 @@ function getClientIP()
 function unblockLogger($args)
 {
     $log_file = "/var/log/pihole-unblock-block-blockpage.log";
-    $log_cmd = "echo '[`date`]: " . $args . "' | sudo tee -a " . $log_file;
+    $log_cmd = "echo \"[\$(date)]:  $args \" | sudo tee -a " . $log_file;
     shell_exec($log_cmd);
 }
 
@@ -107,24 +108,45 @@ function getHost()
 
 function get_server_ip()
 {
-    echo shell_exec("dig +short myip.opendns.com @resolver1.opendns.com");
+    $out = shell_exec("dig +short myip.opendns.com @resolver1.opendns.com");
+    return $out;
 }
 
 function get_internal_server_ip()
 {
-    echo shell_exec("sudo ip route | grep src | awk -F 'src' '{print $NF; exit}' | awk '{print $1}'");
+    $out = shell_exec('sudo ip route | grep src | awk -F \'src\' \'{print $NF; exit}\' | awk \'{print $1}\'');
+    return $out;
 }
 
 function geBlockFullOrgURL()
 {
+    return "";
+}
 
+function unSetURL($url, $url_provided, $server_ip)
+{
+    $internal_ip = get_internal_server_ip();
+    if ($url === $server_ip) {
+        $url = null;
+        $url_provided = false;
+    } else if ($url === '' or empty($url)) {
+        $url = null;
+        $url_provided = false;
+    } else if ($url === get_server_ip() || $url === $internal_ip) {
+        $url = null;
+        $url_provided = false;
+    }
 }
 
 function getAndSetURL()
 {
     global $url, $url_provided, $server_ip;
-    if (isset($_GET['url'])) {
+
+//    $server_ip = default_value($server_ip, get_server_ip());
+    if (isset($_GET['url']) && !empty($_GET['url'])) {
+        $org_url = $_GET['url'];
         if (strpos($_GET['url'], ':') !== false) {
+
             // Strip port out of DNS name since PiHole does not deal with ports
             $url = substr($_GET['url'], 0, strpos($_GET['url'], ":"));
 
@@ -136,25 +158,29 @@ function getAndSetURL()
         }
         $url_provided = true;
 //
-        $internal_ip = get_internal_server_ip();
-        if ($url == $server_ip) {
-            $url = null;
-            $url_provided = false;
-        } else if ($url == '' || empty($url)) {
-            $url = null;
-            $url_provided = false;
-        } else if ($url == get_server_ip()) {
-            $url = null;
-            $url_provided = false;
-        } else if ($url == $internal_ip) {
-            $url = null;
-            $url_provided = false;
-        }
+        unSetURL($url, $url_provided, $server_ip);
 
     } else {
-        $url_provided = false;
+        $org_url = "";
+        $url_provided = true;
         $url = default_value(getHost(), null);
-//  $url = null;
+
+        unSetURL($url, $url_provided, $server_ip);
+    }
+    unblockLogger("url $url, url_provided $url_provided, _GET['url'] / org_url $org_url");
+}
+
+function is_empty($var, $array = null)
+{
+    if (is_array($array) && isset($array)) {
+        $var_in_array = $array[$var];
+        if (array_key_exists($var, $array)) {
+            return (!isset($var_in_array) || empty($var_in_array));
+        } else {
+            return false;
+        }
+    } else {
+        return !isset($var) || empty($var);
     }
 }
 

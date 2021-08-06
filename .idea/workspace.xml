@@ -24,7 +24,8 @@
   <component name="ChangeListManager">
     <list default="true" id="fb2f4c99-b719-4ef9-bb0c-364157986223" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/config.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockpage/unblock/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/blockpage/unblock/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockpage/unblock/index.php.org" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ctp-mods.php" beforeDir="false" afterPath="$PROJECT_DIR$/ctp-mods.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -53,7 +54,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -70,6 +71,9 @@
       <workItem from="1625800649809" duration="5151000" />
       <workItem from="1625920119599" duration="637000" />
       <workItem from="1627568840860" duration="2560000" />
+      <workItem from="1628169243952" duration="71000" />
+      <workItem from="1628169360963" duration="6346000" />
+      <workItem from="1628178649423" duration="435000" />
     </task>
     <servers />
   </component>
@@ -87,28 +91,5 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="980" y="342" key="#CLI_Interpreters" timestamp="1599772305709">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="980" y="342" key="#CLI_Interpreters/0.0.2560.1400@0.0.2560.1400" timestamp="1599772305709" />
-    <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1599806864234">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1599806864234" />
-    <state x="1180" y="442" key="FileChooserDialogImpl" timestamp="1599772302379">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="1180" y="442" key="FileChooserDialogImpl/0.0.2560.1400@0.0.2560.1400" timestamp="1599772302379" />
-    <state x="91" y="92" width="989" height="708" key="SettingsEditor" timestamp="1599806977964">
-      <screen x="0" y="0" width="1920" height="1040" />
-    </state>
-    <state x="91" y="92" width="989" height="708" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1599806977964" />
-    <state x="121" y="124" width="1318" height="711" key="SettingsEditor/0.0.2560.1400@0.0.2560.1400" timestamp="1599776977892" />
-    <state x="917" y="367" width="672" height="678" key="search.everywhere.popup" timestamp="1599774339797">
-      <screen x="0" y="0" width="2560" height="1400" />
-    </state>
-    <state x="917" y="367" width="672" height="678" key="search.everywhere.popup/0.0.2560.1400@0.0.2560.1400" timestamp="1599774339797" />
   </component>
 </project>
