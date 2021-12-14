@@ -1,6 +1,6 @@
 <?php
 require('../../config.php');
-require('../../ctp-mods.php');
+
 $usrLanguage = $conf['language'];
 require("../../locale/locale-$usrLanguage.php");
 
@@ -141,7 +141,7 @@ EOL;
     // Unblocking function
 
     if($_GET['unblock'] == "unblocked") {
-      unblock_local();
+      unblock();
     } else if($_GET['unblock'] == "true") {
       sleep(3);
       echo <<<EOL
@@ -150,10 +150,34 @@ EOL;
       </script>
 EOL;
     }
-    function unblock_local() {
-      $domain =	$GLOBALS['url'];
+    function unblock() {
+
+      // Build command to add to P-H whitelist
+      // $addWhitelistComm = "pihole -w " .$GLOBALS['url'];
+//      $addWhitelistComm = "sudo pihole -w ".$GLOBALS['url']." > /dev/null &";
+//      $addWhitelistComm = "/usr/local/bin/pihole -w ".$GLOBALS['url']." > /var/log/ctp-temp-unblock.log";
+//      $log = "/usr/local/bin/pihole -w ".$GLOBALS['url']."";
+
+      // Build command to schedule removal from P-H whitelist. Sleep x = sleep for x number of seconds. 300 = 5 minutes.
+//      $rmWhitelistComm = "( sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$GLOBALS['url']." & ) > /dev/null &";
+//      $rmlog = "( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$GLOBALS['url']." ) &";
+
+      // Execute P-H whitelist add command
+//      exec($addWhitelistComm);
+//      exec($log);
+//      exec($rmlog);
+$domain =	$GLOBALS['url'];
+//      $domain = $_GET['unblock'];
       $toUnblock = str_replace('&period;', '.', strval($domain));
-      $time = $GLOBALS['unblockTimeSec'];
-      unblock($toUnblock, $time, $conf);
+      exec(" /usr/local/bin/pihole -w ".$toUnblock."");
+      shell_exec(" /usr/local/bin/pihole -w ".$toUnblock."");
+//      shell_exec($log);
+//      shell_exec($rmlog);
+      // Execute command that schedules removal of domain from P-H whitelist
+//      exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d "rawurldecode(.$GLOBALS['url'].)" ) &");
+      exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$toUnblock." & ) &");
+      shell_exec("( /usr/bin/sleep ".$GLOBALS['unblockTimeSec']."; /usr/local/bin/pihole -w -d ".$toUnblock." & ) &");
+ //     shell_exec($rmWhitelistComm);
+      // All done!
     }
 ?>
