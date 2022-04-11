@@ -3,6 +3,7 @@
 //    require('config.php');
 //}
 $ctp_mods_imported = true;
+
 function dns_prefetch()
 {
     echo <<<EOL
@@ -41,6 +42,7 @@ function unblockLogger($args)
 
 function unblock($domain, $time, $conf)
 {
+    $sudo_bin = '/bin/sudo';
 //      $domain = $_GET['unblock'];
     $domain = default_value($domain, $GLOBALS['url']);
     $domain = default_value($domain, getHost());
@@ -57,8 +59,9 @@ function unblock($domain, $time, $conf)
     $end_cmd = "";
     unblockLogger("Ran client_ip, $client_ip, domain $domain, toUnblock $toUnblock, time $time");
 
-    $pihole_cmd_str = "/usr/bin/sudo /usr/local/bin/pihole";
-    $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists";
+    $pihole_cmd_str = $sudo_bin . " /usr/local/bin/pihole";
+    $ctp_dns_clear_cache_cmd_str = "/usr/local/bin/ctp-dns --flush-cache-all";
+    $pihole_refresh_cmd_str = $pihole_cmd_str . " restartdns reload-lists; " . $ctp_dns_clear_cache_cmd_str;
 
     $sleep_cmd_str = " ( /usr/bin/sleep " . $time . "; ";
     $whitelistStr = $pihole_cmd_str . " -w " . $toUnblock . "; " . $pihole_refresh_cmd_str . $end_cmd;
@@ -114,7 +117,8 @@ function get_server_ip()
 
 function get_internal_server_ip()
 {
-    $out = shell_exec('sudo ip route | grep src | awk -F \'src\' \'{print $NF; exit}\' | awk \'{print $1}\'');
+    $sudo_bin = '/bin/sudo';
+    $out = shell_exec($sudo_bin . ' /bin/ip route | grep src | awk -F \'src\' \'{print $NF; exit}\' | awk \'{print $1}\'');
     return $out;
 }
 
